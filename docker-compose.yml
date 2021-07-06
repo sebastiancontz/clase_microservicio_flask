@@ -1,0 +1,45 @@
+version: '3'
+services:
+    db:
+        container_name: db-mysql
+        image: mysql:5.7
+        volumes:
+            - $PWD/data:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: password1234
+            MYSQL_DATABASE: api_demo
+            MYSQL_USER: api_user
+            MYSQL_PASSWORD: api_user
+        ports:
+            - "3306:3306"
+        networks:
+            - my_net
+
+    api-auth:
+        container_name: api-auth
+        build:
+            context: .
+            dockerfile: Dockerfile-api-auth
+        ports: 
+            - 5001:5001
+        command: python3 app.py
+        networks:
+            - my_net
+        depends_on:
+            - "db"
+
+    api-libreria:
+        container_name: api-libreria
+        build:
+            context: .
+            dockerfile: Dockerfile-api-libreria
+        ports: 
+            - 5000:5000
+        command: python3 app.py
+        networks:
+            - my_net
+        depends_on:
+            - "api-auth"
+            - "db"
+networks:
+    my_net:
